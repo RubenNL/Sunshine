@@ -70,7 +70,6 @@ namespace stream {
 
     /**
      * @brief Disconnect a session by its ID.
-     * @param session_id The unique session identifier.
      * @return true if the session was found and stopped, false otherwise.
      */
     bool disconnect(const std::string &session_id);
