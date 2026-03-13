@@ -889,11 +889,6 @@ namespace confighttp {
    * @param response The HTTP response object.
    * @param request The HTTP request object.
    * The body for the post request should be JSON serialized in the following format:
-   * @code{.json}
-   * {
-   *  "session_id": "<id>"
-   * }
-   * @endcode
    *
    * @api_examples{/api/sessions/disconnect| POST| {"session_id":"1234"}}
    */
