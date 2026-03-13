@@ -48,85 +48,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-docker:
-    name: Docker
-    needs: release-setup
-    permissions:
-      contents: read
-      packages: write
-    uses: LizardByte/.github/.github/workflows/__call-docker.yml@master
-    with:
-      maximize_build_space: true
-      publish_release: ${{ needs.release-setup.outputs.publish_release }}
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_tag: ${{ needs.release-setup.outputs.release_tag }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-    secrets:
-      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      GH_BOT_NAME: ${{ secrets.GH_BOT_NAME }}
-      GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-freebsd:
-    name: FreeBSD
-    needs: release-setup
-    uses: ./.github/workflows/ci-freebsd.yml
-    with:
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-
-  build-homebrew:
-    name: Homebrew
-    needs: release-setup
-    uses: ./.github/workflows/ci-homebrew.yml
-    with:
-      publish_release: ${{ needs.release-setup.outputs.publish_release }}
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_tag: ${{ needs.release-setup.outputs.release_tag }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-    secrets:
-      GH_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-      GIT_EMAIL: ${{ secrets.GH_BOT_EMAIL }}
-      GIT_USERNAME: ${{ secrets.GH_BOT_NAME }}
-
-  build-linux:
-    name: Linux
-    needs: release-setup
-    uses: ./.github/workflows/ci-linux.yml
-    with:
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-
-  build-archlinux:
-    name: Archlinux
-    needs: release-setup
-    uses: ./.github/workflows/ci-archlinux.yml
-    with:
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-
-  build-linux-copr:
-    name: Linux Copr
-    if: github.event_name != 'push'  # releases are handled directly in ci-copr.yml
-    needs: release-setup
-    permissions:
-      contents: write  # needed to update releases
-    uses: ./.github/workflows/ci-copr.yml
-    secrets:
-      COPR_BETA_WEBHOOK_TOKEN: ${{ secrets.COPR_BETA_WEBHOOK_TOKEN }}
-      COPR_STABLE_WEBHOOK_TOKEN: ${{ secrets.COPR_STABLE_WEBHOOK_TOKEN }}
-      COPR_CLI_CONFIG: ${{ secrets.COPR_CLI_CONFIG }}
-
-  build-linux-flatpak:
-    name: Linux Flatpak
-    needs: release-setup
-    uses: ./.github/workflows/ci-flatpak.yml
-    with:
-      release_commit: ${{ needs.release-setup.outputs.release_commit }}
-      release_version: ${{ needs.release-setup.outputs.release_version }}
-
   build-windows:
     name: Windows
     needs: release-setup
@@ -149,41 +70,12 @@ jobs:
       !cancelled() &&
       startsWith(github.repository, 'LizardByte/')
     needs:
-      - build-freebsd
-      - build-linux
-      - build-archlinux
-      - build-linux-flatpak
-      - build-homebrew
       - build-windows
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: FreeBSD-14.3-amd64
-            coverage: true
-            pr: true
-          - name: FreeBSD-14.3-aarch64
-            coverage: true
-            pr: false
-          - name: Linux-AppImage
-            coverage: true
-            pr: true
-          - name: Archlinux
-            coverage: true
-            pr: true
-          - name: Homebrew-macos-14
-            coverage: false
-            pr: true
-          - name: Homebrew-macos-15
-            coverage: false
-            pr: true
-          - name: Homebrew-macos-26
-            coverage: false
-            pr: true
-          - name: Homebrew-ubuntu-22.04
-            coverage: true
-            pr: true
           - name: Windows-AMD64
             coverage: true
             pr: true
@@ -239,12 +131,6 @@ jobs:
       startsWith(github.repository, 'LizardByte/')
     needs:
       - release-setup
-      - build-archlinux
-      - build-docker
-      - build-freebsd
-      - build-homebrew
-      - build-linux
-      - build-linux-flatpak
       - build-windows
     runs-on: ubuntu-latest
     steps:
